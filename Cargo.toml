@@ -1,0 +1,24 @@
+[package]
+name = "seqrs"
+description = "Fast statistics and filtering for FASTQ/FASTA files"
+readme = "README.md"
+keywords = ["fastq", "bio"]
+version = "1.0.0"
+authors = ["Rui Wang"]
+edition = "2024"
+
+
+[dependencies]
+kseq = "0.5.3"
+bio = "*"
+clap = { version = "4", features = ["derive"] }
+regex = "1"
+rayon = "1.5"
+indicatif = "0.17.8"
+plotters = { version = "0.3", default-features = false, features = ["svg_backend", "line_series"] }
+ferris-says = "0.3"
+rand = "0.8"
+
+[dev-dependencies]
+assert_cmd = "0.10"
+predicates = "1.0"
