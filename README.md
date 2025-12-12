@@ -229,6 +229,3 @@ seqrs/
 
 MIT
 
-## Author
-
-Rui Wang
