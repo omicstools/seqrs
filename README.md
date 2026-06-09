@@ -2,7 +2,7 @@
 
 Fast statistics and filtering tool for FASTQ/FASTA files, written in Rust.
 
-## Features 
+## Features
 
 - **Statistics**: Basic stats, QC reports with plots, per-read metrics (length, GC, quality)
 - **Filtering**: By length, quality score, or read ID (regex)
