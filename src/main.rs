@@ -746,12 +746,18 @@ fn run_sample(args: SampleArgs) {
 
     // Sample by number of reads (requires two passes or reservoir sampling)
     if let Some(target_count) = args.number {
-        // Use reservoir sampling for single-pass
-        let mut rng = match args.seed {
-            Some(seed) => rand::rngs::StdRng::seed_from_u64(seed),
-            None => rand::rngs::StdRng::from_entropy(),
-        };
         use rand::SeedableRng;
+        // Use reservoir sampling for single-pass
+        let mut rng: rand::rngs::StdRng = match args.seed {
+            Some(seed) => rand::rngs::StdRng::seed_from_u64(seed),
+            None => {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos() as u64;
+                rand::rngs::StdRng::seed_from_u64(now)
+            }
+        };
 
         let mut reservoir: Vec<(String, String, String, String)> = Vec::with_capacity(target_count);
         let mut count: usize = 0;
@@ -766,7 +772,7 @@ fn run_sample(args: SampleArgs) {
                     record.qual().to_string(),
                 ));
             } else {
-                let j = rng.r#gen_range(0..count);
+                let j = rng.random_range(0..count);
                 if j < target_count {
                     reservoir[j] = (
                         format!("{} {}", "@".to_string() + record.head(), record.des()),
@@ -791,19 +797,20 @@ fn run_sample(args: SampleArgs) {
             process::exit(1);
         }
 
+        use rand::SeedableRng;
         let mut rng: rand::rngs::StdRng = match args.seed {
-            Some(seed) => {
-                use rand::SeedableRng;
-                rand::rngs::StdRng::seed_from_u64(seed)
-            }
+            Some(seed) => rand::rngs::StdRng::seed_from_u64(seed),
             None => {
-                use rand::SeedableRng;
-                rand::rngs::StdRng::from_entropy()
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos() as u64;
+                rand::rngs::StdRng::seed_from_u64(now)
             }
         };
 
         while let Some(record) = records.iter_record().unwrap() {
-            if rng.r#gen::<f32>() < fraction {
+            if rng.random::<f32>() < fraction {
                 write_fastq(record);
             }
         }

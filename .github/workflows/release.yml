@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Build release binary
+        run: cargo build --release --verbose
+      
+      - name: Create tarball
+        run: |
+          mkdir -p seqrs-${{ github.ref_name }}-linux-amd64
+          cp target/release/seqrs seqrs-${{ github.ref_name }}-linux-amd64/
+          cp README.md LICENSE seqrs-${{ github.ref_name }}-linux-amd64/
+          tar -czf seqrs-${{ github.ref_name }}-linux-amd64.tar.gz seqrs-${{ github.ref_name }}-linux-amd64/
+      
+      - name: Calculate checksums
+        run: |
+          sha256sum seqrs-${{ github.ref_name }}-linux-amd64.tar.gz > seqrs-${{ github.ref_name }}-linux-amd64.tar.gz.sha256
+          cat seqrs-${{ github.ref_name }}-linux-amd64.tar.gz.sha256
+      
+      - name: Get release notes
+        id: get_release_notes
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            echo "notes=$(cat CHANGELOG.md)" >> $GITHUB_OUTPUT
+          else
+            echo "notes=Release ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            seqrs-${{ github.ref_name }}-linux-amd64.tar.gz
+            seqrs-${{ github.ref_name }}-linux-amd64.tar.gz.sha256
+          body: ${{ steps.get_release_notes.outputs.notes }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

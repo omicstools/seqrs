@@ -9,16 +9,16 @@ edition = "2024"
 
 
 [dependencies]
-kseq = "0.5.3"
-bio = "*"
+kseq = "0.5"
+bio = "3"
 clap = { version = "4", features = ["derive"] }
 regex = "1"
-rayon = "1.5"
-indicatif = "0.17.8"
+rayon = "1.10"
+indicatif = "0.17"
 plotters = { version = "0.3", default-features = false, features = ["svg_backend", "line_series"] }
 ferris-says = "0.3"
-rand = "0.8"
+rand = "0.9"
 
 [dev-dependencies]
-assert_cmd = "0.10"
-predicates = "1.0"
+assert_cmd = "2.1"
+predicates = "3.1"

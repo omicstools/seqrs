@@ -1,5 +1,5 @@
-# seqrs 
-v2.0
+# seqrs
+
 Fast statistics and filtering tool for FASTQ/FASTA files, written in Rust.
 
 ## Features
